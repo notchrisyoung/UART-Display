@@ -32,6 +32,9 @@ void LoadingScreen::sendUartData(const String& message) {
     // Send data over UART if needed
     // Add logic to send data over UART
 }
+void LoadingScreen::setUARTcallback(void (*callback)(const String& message)) {
+    // Set the UART callback to send data from this screen
+}
 void LoadingScreen::highlight(int item) {
     if (item != currentSelection) {
         clearHighlight();
@@ -76,6 +79,6 @@ void LoadingScreen::selectPress() {
 }
 void LoadingScreen::backPress() {
     // Handle back button press, e.g., return to the previous screen
-    Serial.println("Back pressed");
+    //Serial.println("Back pressed");
     // Add logic to handle back navigation
 }

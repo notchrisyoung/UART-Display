@@ -5,8 +5,8 @@
 
 
 
-#define MENU_SCREEN_SPACING  75
-#define MENU_SCREEN_OFFSET   50
+#define  SELECTION_SCREEN_SPACING  75
+#define SELECTION_SCREEN_OFFSET   50
 
 class SelectionScreen : public BaseScreen {
     public:
@@ -16,6 +16,7 @@ class SelectionScreen : public BaseScreen {
         void draw() override;
         void processUartData(JsonDocument& doc) override;
         void sendUartData(const String& message);
+        void setUARTcallback(void (*callback)(const String& message)) override;
         void highlight(int item);
         void clearHighlight();
         void upPress() override; 
@@ -30,6 +31,7 @@ class SelectionScreen : public BaseScreen {
         uint8_t menuItemCount;
         uint8_t selectedIndex;
         uint8_t currentSelection;
+        void (*uartSendCallback)(const String&);
 };
 
 #endif // SELECTION_SCREEN_H

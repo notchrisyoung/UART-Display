@@ -13,9 +13,7 @@ void homePressCallback()   { if(ScreenManager::instance) ScreenManager::instance
 
 void ScreenManager::init() {
     instance = this; // assign global pointer
-    currentScreen = new SplashScreen();
-    currentScreenType = ScreenType::SPLASH_SCREEN;
-    currentScreen->draw();
+    switchToScreen(ScreenType::SPLASH_SCREEN);
     Buttons::setButtonCallback(Button::UP, upPressCallback);
     Buttons::setButtonCallback(Button::DOWN, downPressCallback);
     Buttons::setButtonCallback(Button::LEFT, leftPressCallback);
@@ -32,7 +30,7 @@ void ScreenManager::update() {
 }
 
 void ScreenManager::switchToScreen(ScreenType newScreen) {
-    Serial.println("Switching screens");
+    //Serial.println("Switching screens");
     if(currentScreenType == newScreen) {
          return; // No need to switch if the screen is already the same
     }
@@ -53,17 +51,21 @@ void ScreenManager::switchToScreen(ScreenType newScreen) {
             currentScreen = new LoadingScreen();
             break;
     }
+    currentScreenType = newScreen;
     currentScreen->init();
+    if (uartSendCallback) { 
+        currentScreen->setUARTcallback(uartSendCallback);
+    }
 }
 
 void ScreenManager::processUartData(uint8_t* data, uint8_t len) {
-    Serial.println("Processing UART Data");
+    //Serial.println("Processing UART Data");
     // Process the message and update the current screen accordingly
     String message = String((char*)data);
     DeserializationError error = deserializeJson(doc, message);
     if (error) {
-        Serial.print(F("deserializeJson() failed: "));
-        Serial.println(error.f_str());
+        //Serial.print(F("deserializeJson() failed: "));
+        //Serial.println(error.f_str());
         return;
     }
     String type = doc["type"];
@@ -92,8 +94,7 @@ void ScreenManager::processUartData(uint8_t* data, uint8_t len) {
 }
 
 void ScreenManager::setUARTcallback(void (*callback)(const String& message)) {
-    // Set the UART callback to send data from screens
-    // This function can be used to set a callback for sending data over UART
+    uartSendCallback = callback;
 }
 
 void ScreenManager::sendUartData(const String& message) {

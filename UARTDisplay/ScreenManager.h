@@ -42,6 +42,7 @@ private:
   	JsonDocument doc;
   	BaseScreen* currentScreen;
 	ScreenType currentScreenType;
+	void (*uartSendCallback)(const String& message);
 };
 
 #endif // SCREEN_MANAGER_H

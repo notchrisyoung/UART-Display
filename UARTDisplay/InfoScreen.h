@@ -16,6 +16,7 @@ class InfoScreen : public BaseScreen {
         void draw() override;
         void processUartData(JsonDocument& doc) override;
         void sendUartData(const String& message);
+        void setUARTcallback(void (*callback)(const String& message)) override;
         void highlight(int item);
         void clearHighlight();
         void upPress() override; 

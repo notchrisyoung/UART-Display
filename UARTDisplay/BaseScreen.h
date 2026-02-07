@@ -11,6 +11,8 @@ public:
   virtual void update() = 0;
   virtual void draw() = 0;
   virtual void processUartData(JsonDocument& doc) = 0;
+  virtual void sendUartData(const String& message) = 0;
+  virtual void setUARTcallback(void (*callback)(const String& message)) = 0;
   virtual void upPress() = 0;
   virtual void downPress() = 0;
   virtual void leftPress() = 0;

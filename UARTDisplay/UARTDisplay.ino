@@ -22,7 +22,6 @@ void setup() {
     sm.setUARTcallback([](const String& message) {
         uart.sendMessage((uint8_t*)message.c_str(), message.length());
     });
-    Serial.println("Setup complete.");
 }
 
 void loop() {

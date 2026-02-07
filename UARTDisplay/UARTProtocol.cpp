@@ -1,25 +1,27 @@
 
 #include "UARTProtocol.h"
 
-
-
-uint8_t UARTProtocol::calcChecksum(const uint8_t* data, uint8_t len) {
-    uint8_t chk = 0;
-    for (uint8_t i = 0; i < len; ++i) {
-        chk ^= data[i];
-    }
-    return chk;
+uint8_t UARTProtocol::calcChecksum(const uint8_t* data, uint16_t len) {
+    return crc.calculate(data, len);
 }
+
+
 void UARTProtocol::receiveByte(uint8_t byte) {
     switch (state) {
         case WAIT_START:
-            if (byte == START_BYTE) state = READ_LENGTH;
+            if (byte == START_BYTE) {
+                state = READ_LENGTH;
+                index = 0;
+            }
             break;
 
         case READ_LENGTH:
-            length = byte;
-            index = 0;
-            state = READ_DATA;
+            buffer[index++] = byte;
+            if (index >= 2) {
+                length = (buffer[0] << 8) | buffer[1];
+                index = 0;
+                state = READ_DATA;
+            }
             break;
 
         case READ_DATA:
@@ -38,28 +40,21 @@ void UARTProtocol::receiveByte(uint8_t byte) {
 
         case WAIT_END:
             if (byte == END_BYTE && checksum == calcChecksum(buffer, length)) {
+                Serial.write(MESSAGE_OK);
                 processMessage(buffer, length);
+            } else {
+                Serial.write(MESSAGE_ERR);
             }
             state = WAIT_START;
             break;
     }
 }
-void UARTProtocol::processMessageOut(const uint8_t* data, uint8_t len) {
-    // Example: Echo back with "OK: " prefix
-    const char* prefix = "OK: ";
-    uint8_t out[UART_BUFFER_SIZE];
-    uint8_t prefixLen = strlen(prefix);
 
-    memcpy(out, prefix, prefixLen);
-    memcpy(out + prefixLen, data, len);
-
-    sendMessage(out, prefixLen + len);
-}
-
-void UARTProtocol::sendMessage(const uint8_t* data, uint8_t len) {
+void UARTProtocol::sendMessage(const uint8_t* data, uint16_t len) {
     uint8_t chk = calcChecksum(data, len);
     Serial.write(START_BYTE);
-    Serial.write(len);
+    Serial.write((len >> 8) & 0xFF);
+    Serial.write(len & 0xFF); 
     Serial.write(data, len);
     Serial.write(chk);
     Serial.write(END_BYTE);

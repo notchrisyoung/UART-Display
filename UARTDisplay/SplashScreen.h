@@ -11,6 +11,8 @@ class SplashScreen : public BaseScreen {
         void draw() override;
         void update() override;
         void processUartData(JsonDocument& doc) override;
+        void sendUartData(const String& message) override;
+        void setUARTcallback(void (*callback)(const String& message)) override;
         void upPress() override;
         void downPress() override;
         void leftPress() override;

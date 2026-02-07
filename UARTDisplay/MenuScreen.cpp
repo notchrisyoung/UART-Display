@@ -10,13 +10,13 @@ MenuScreen::MenuScreen() {
 }
 void MenuScreen::init() {
     // Initialize the screen (e.g., setup menu items)
-    Serial.println("MenuScreen init");
+    //Serial.println("MenuScreen init");
 }
 void MenuScreen::update() {
   // No periodic updates needed for static menu
 }
 void MenuScreen::draw() {
-    Serial.println("MenuScreen draw");
+    //Serial.println("MenuScreen draw");
     Display::clear();
     Display::setFont(OpenSansB24);
     Display::drawString((DISPLAY_WIDTH/2)-5, MENU_SCREEN_OFFSET, menuTitle, Display::CENTER);
@@ -26,13 +26,13 @@ void MenuScreen::draw() {
     highlight(selectedIndex);
 }
 void MenuScreen::processUartData(JsonDocument& doc) {
-    Serial.println("MenuScreen processUartData");
+    //Serial.println("MenuScreen processUartData");
     // Process the message and update the menu items if needed
     // Add logic to handle incoming UART data and update menu items
     if (doc.containsKey("menuItems")) {
         JsonArray items = doc["menuItems"].as<JsonArray>();
         menuItemCount = items.size();
-        menuTitle = doc["title"].as<String>();
+        menuTitle = doc["menuTitle"].as<String>();
         menuItems = new String[menuItemCount];
         for (size_t i = 0; i < menuItemCount; i++) {
             menuItems[i] = items[i].as<String>();
@@ -41,9 +41,13 @@ void MenuScreen::processUartData(JsonDocument& doc) {
     draw(); // draw the menu after processing
 }
 void MenuScreen::sendUartData(const String& message) {
-    // Send data over UART if needed
-    // Add logic to send data over UART
+    if (uartSendCallback) {
+        uartSendCallback(message);
+    }
     
+}
+void MenuScreen::setUARTcallback(void (*callback)(const String& message)) {
+    uartSendCallback = callback;
 }
 void MenuScreen::highlight(int item) {
     if (item != currentSelection) {
@@ -90,11 +94,15 @@ void MenuScreen::rightPress() {
     // Handle right button press if needed
 }
 void MenuScreen::selectPress() {
-    
-    sendUartData("select");
+    JsonDocument doc;
+    doc["type"] = "item_selected";
+    doc["selectedItem"] = menuItems[selectedIndex];
+    String message;
+    serializeJson(doc, message);
+    sendUartData(message);
 }
 void MenuScreen::backPress() {
     // Handle back button press, e.g., return to the previous screen
-    Serial.println("Back pressed");
+    //Serial.println("Back pressed");
     // Add logic to handle back navigation
 }
