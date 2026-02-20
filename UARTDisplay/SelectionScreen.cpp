@@ -3,6 +3,7 @@
 SelectionScreen::SelectionScreen() {
     // Initialize menu items
     screenItems = nullptr;
+    drawnItemCount = 0;
     screenItemCount = 0;
     selectedIndex = 0;
     currentSelection = 0;
@@ -14,28 +15,15 @@ void SelectionScreen::init() {
     //Serial.println("SelectionScreen init");
 }
 
-void SelectionScreen::update() {
-    // No periodic updates needed for static menu
-}
-
-void SelectionScreen::draw() {
-    Display::clear();
-    Display::setFont(OpenSansB14);
-    Display::drawString((DISPLAY_WIDTH/2)-5, SELECTION_SCREEN_OFFSET, screenTitle, Display::CENTER);
-    Display::drawFastHLine(0, 39, EPD_WIDTH, Black);
-    Display::setFont(OpenSans12);
-    for (size_t i = 0; i < screenItemCount; i++) {
-        Display::drawString(50, SELECTION_SCREEN_OFFSET + (SELECTION_SCREEN_SPACING * (i + 1)), screenItems[i], Display::LEFT);
-    }
-    highlight(selectedIndex);
+void SelectionScreen::update() {    
 }
 
 void SelectionScreen::processUartData(JsonDocument& doc) {
     //Serial.println("SelectionScreen processUartData");
-    if (doc.containsKey("screenItems")) {
-        JsonArray items = doc["screenItems"].as<JsonArray>();
+    if (doc.containsKey("menuItems")) {
+        JsonArray items = doc["menuItems"].as<JsonArray>();
         screenItemCount = items.size();
-        screenTitle = doc["screenTitle"].as<String>();
+        screenTitle = doc["menuTitle"].as<String>();
         screenItems = new String[screenItemCount];
         for (size_t i = 0; i < screenItemCount; i++) {
             screenItems[i] = items[i].as<String>();
@@ -55,54 +43,122 @@ void SelectionScreen::setUARTcallback(void (*callback)(const String& message)) {
     uartSendCallback = callback;
 }
 
-void SelectionScreen::highlight(int item) {
-    if (item != currentSelection) {
-        clearHighlight();
-    }
-    int y = SELECTION_SCREEN_SPACING * (item + 1);
-    int x1 = 12;
-    int x2 = 40; 
-    Display::fillTriangle(x1, y + 10, x1, y + 50, x2, y + 30, BLACK);
-    currentSelection = item;
-    Display::update(); 
-}
-
-void SelectionScreen::clearHighlight() {
-	Rect_t rect = {0, 0, 52, EPD_HEIGHT};
-	Display::fillRect(rect.x, rect.y, rect.width, rect.height, WHITE);
-	for (int16_t  i = 0; i < 4; i++){
-        Display::pushPixels(rect,50,1);
-    }
-}
-
 void SelectionScreen::upPress() {
-    if (selectedIndex > 0) {
-        selectedIndex--;
-        highlight(selectedIndex);
+    // Calculate current column and row
+    uint16_t currentColumn = selectedIndex / ITEM_PER_COLUMN;
+    uint16_t currentRow = selectedIndex % ITEM_PER_COLUMN;
+    
+    // Move up, wrapping to bottom if at the top
+    uint16_t newRow;
+    if (currentRow > 0) {
+        newRow = currentRow - 1;
+    } else {
+        newRow = ITEM_PER_COLUMN - 1;  // Wrap to bottom row
     }
-    else {
-        selectedIndex = screenItemCount - 1;
+    
+    // Calculate new index
+    uint16_t newIndex = (currentColumn * ITEM_PER_COLUMN) + newRow;
+    
+    // If the new index exceeds the item count, adjust to the last valid item in current column
+    if (newIndex >= screenItemCount) {
+        newIndex = (currentColumn * ITEM_PER_COLUMN) + ((screenItemCount - 1) % ITEM_PER_COLUMN);
+    }
+    
+    // Ensure we don't go out of bounds
+    if (newIndex < screenItemCount) {
+        selectedIndex = newIndex;
         highlight(selectedIndex);
     }
 }
 
 void SelectionScreen::downPress() {
-    if (selectedIndex < screenItemCount - 1) {
-        selectedIndex++;
-        highlight(selectedIndex);
+    // Calculate current column and row
+    uint16_t currentColumn = selectedIndex / ITEM_PER_COLUMN;
+    uint16_t currentRow = selectedIndex % ITEM_PER_COLUMN;
+    
+    // Move down, wrapping to top if at the bottom
+    uint16_t newRow;
+    if (currentRow < ITEM_PER_COLUMN - 1) {
+        newRow = currentRow + 1;
+    } else {
+        newRow = 0;  // Wrap to top row
     }
-    else {
-        selectedIndex = 0;
+    
+    // Calculate new index
+    uint16_t newIndex = (currentColumn * ITEM_PER_COLUMN) + newRow;
+    
+    // If the new index exceeds the item count, wrap to first item in current column
+    if (newIndex >= screenItemCount) {
+        newIndex = currentColumn * ITEM_PER_COLUMN;
+    }
+    
+    // Ensure we don't go out of bounds
+    if (newIndex < screenItemCount) {
+        selectedIndex = newIndex;
         highlight(selectedIndex);
     }
 }
 
 void SelectionScreen::leftPress() {
-    // Handle left button press if needed
+    // Calculate current column and row
+    uint16_t currentColumn = selectedIndex / ITEM_PER_COLUMN;
+    uint16_t currentRow = selectedIndex % ITEM_PER_COLUMN;
+    
+    // Calculate total number of columns
+    uint16_t totalColumns = (screenItemCount + ITEM_PER_COLUMN - 1) / ITEM_PER_COLUMN;
+    
+    // Move left, wrapping around to the rightmost column if at the left edge
+    uint16_t newColumn;
+    if (currentColumn > 0) {
+        newColumn = currentColumn - 1;
+    } else {
+        newColumn = totalColumns - 1;  // Wrap to rightmost column
+    }
+    
+    // Calculate new index, but make sure it doesn't exceed total items
+    uint16_t newIndex = (newColumn * ITEM_PER_COLUMN) + currentRow;
+    
+    // If the new index exceeds the item count, adjust to the last valid item in that column
+    if (newIndex >= screenItemCount) {
+        newIndex = (newColumn * ITEM_PER_COLUMN) + ((screenItemCount - 1) % ITEM_PER_COLUMN);
+    }
+    
+    // Ensure we don't go out of bounds
+    if (newIndex < screenItemCount) {
+        selectedIndex = newIndex;
+        highlight(selectedIndex);
+    }
 }
 
 void SelectionScreen::rightPress() {
-    // Handle right button press if needed
+    // Calculate current column and row
+    uint16_t currentColumn = selectedIndex / ITEM_PER_COLUMN;
+    uint16_t currentRow = selectedIndex % ITEM_PER_COLUMN;
+    
+    // Calculate total number of columns
+    uint16_t totalColumns = (screenItemCount + ITEM_PER_COLUMN - 1) / ITEM_PER_COLUMN;
+    
+    // Move right, wrapping around to the leftmost column if at the right edge
+    uint16_t newColumn;
+    if (currentColumn < totalColumns - 1) {
+        newColumn = currentColumn + 1;
+    } else {
+        newColumn = 0;  // Wrap to leftmost column
+    }
+    
+    // Calculate new index, but make sure it doesn't exceed total items
+    uint16_t newIndex = (newColumn * ITEM_PER_COLUMN) + currentRow;
+    
+    // If the new index exceeds the item count, adjust to the last valid item in that column
+    if (newIndex >= screenItemCount) {
+        newIndex = (newColumn * ITEM_PER_COLUMN) + ((screenItemCount - 1) % ITEM_PER_COLUMN);
+    }
+    
+    // Ensure we don't go out of bounds
+    if (newIndex < screenItemCount) {
+        selectedIndex = newIndex;
+        highlight(selectedIndex);
+    }
 }
 
 void SelectionScreen::selectPress() {
@@ -121,114 +177,53 @@ void SelectionScreen::backPress() {
 }
 
 //################ Draw FUNCTIONS ##################################################
-void SelectionScreen::DrawZCMenu() {
-    setFont(OpenSans14);
-    drawString((EPD_WIDTH/2)-5, 28, TXT_SCANNING_FOR_ZC, CENTER);
-    drawFastHLine(0, 39, EPD_WIDTH, Black);
-    edp_update(); 
-    DrawZCScannedMenuItems(ZCMenuItems, 100); 
-    currentSelection = 1;
-    ZCMenuHighlight(1);
+void SelectionScreen::draw() {
+    Display::clear();
+    drawTitle();
+    drawItems(screenItems, screenItemCount);
+    highlight(selectedIndex);
 }
 
-void SelectionScreen::DrawZCScannedMenuItems(const char* menuItems[], int itemCount) {
-    setFont(OpenSans12);
-    for (int i = scanZCCount; i < scanZCCount+itemCount; i++) {
-        int column = i / ZC_ITEM_PER_COLUMN;
-        int row = i % ZC_ITEM_PER_COLUMN;
-        int x = 35 + column * ZC_COLUMN_WIDTH;
-        int y = SCAN_ZC_MENU_OFFSET + (SCAN_ZC_MENU_SPACING * (row + 1));
-        drawString(x, y, menuItems[i], LEFT);
+void SelectionScreen::drawTitle() {
+    Display::setFont(OpenSansB14);
+    Display::drawString((DISPLAY_WIDTH/2)-5, SELECTION_SCREEN_TITLE_OFFSET, screenTitle, Display::CENTER);
+    Display::drawFastHLine(0, TITLE_HIGHT, DISPLAY_WIDTH, BLACK);
+}
+
+void SelectionScreen::drawItems(String*& menuItems, uint16_t itemCount) {
+    Display::setFont(OpenSans12);
+    for (uint16_t i = 0; i < itemCount; i++) {
+        uint16_t column = i / ITEM_PER_COLUMN;
+        uint16_t row = i % ITEM_PER_COLUMN;
+        uint32_t x = 35 + column * COLUMN_WIDTH;
+        uint32_t y = ITEM_OFFSET + (ITEM_SPACING * (row + 1));
+        Display::drawString(x, y, menuItems[i], Display::LEFT);
     }
-    scanZCCount += itemCount;
-    edp_update(); 
-}
+    drawnItemCount += itemCount;
+} 
 
-void SelectionScreen::ZCMenuHighlight(int menu) {
-    int column = (currentSelection - 1) / ZC_ITEM_PER_COLUMN;
-    int row = (currentSelection - 1) % ZC_ITEM_PER_COLUMN;
-    int x = 3 + column * ZC_COLUMN_WIDTH;
-    int y = 9 + SCAN_ZC_MENU_OFFSET + (SCAN_ZC_MENU_SPACING * (row));
-    if (menu != currentSelection) {
+void SelectionScreen::highlight(uint16_t item) {
+    uint16_t column = (currentSelection) / ITEM_PER_COLUMN;
+    uint16_t row = (currentSelection) % ITEM_PER_COLUMN;
+    uint16_t x = 3 + column * COLUMN_WIDTH;
+    uint16_t y = 9 + ITEM_OFFSET + (ITEM_SPACING * (row));
+    if (item != currentSelection) {
         Rect_t rect = {x, y, 31, 32};
-        epd_fill_rect(rect.x, rect.y, rect.width, rect.height, White, framebuffer);
+        Display::fillRect(rect.x, rect.y, rect.width, rect.height, WHITE);
         for (int16_t  i = 0; i < 10; i++){
-            epd_push_pixels(rect,50,1);
+            Display::pushPixels(rect,50,1);
         }
     }
-    column = (menu - 1) / ZC_ITEM_PER_COLUMN;
-    row = (menu - 1) % ZC_ITEM_PER_COLUMN;
-    x = 12 + column * ZC_COLUMN_WIDTH;
-    y = 15 + SCAN_ZC_MENU_OFFSET + (SCAN_ZC_MENU_SPACING * (row));
-    fillTriangle(x, y , x, y + 15, x + 16, y + 7, Black);
-    currentSelection = menu;
-    edp_update();
+    column = (item) / ITEM_PER_COLUMN;
+    row = (item) % ITEM_PER_COLUMN;
+    x = 12 + column * COLUMN_WIDTH;
+    y = 15 + ITEM_OFFSET + (ITEM_SPACING * (row));
+    Display::fillTriangle(x, y , x, y + 15, x + 16, y + 7, BLACK);
+    currentSelection = item;
+    Display::update();
 }
 
-void SelectionScreen::DrawZCConnectingScreen() {
-    epd_clear();
-    memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
-    setFont(OpenSans14);
-    drawString((EPD_WIDTH/2)-5, 28, TXT_CONNECTING_TO_ZC, CENTER);
-    drawFastHLine(0, 39, EPD_WIDTH, Black);
-    currentScreen = CONNECTING_TO_ZC;
-    edp_update();
-}
-
-//Drawing rc menu
-void SelectionScreen::DrawRCMenu() {
-    epd_clear();
-    memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
-    setFont(OpenSans14);
-    drawString((EPD_WIDTH/2)-5, 28, TXT_SCANNING_FOR_RC, CENTER);
-    drawFastHLine(0, 39, EPD_WIDTH, Black);
-    currentScreen = SCANNING_FOR_RC;
-    edp_update(); 
-    DrawRCScannedMenuItems(RCMenuItems, 100); 
-    currentSelection = 1;
-    RCMenuHighlight(1);
-}
-void SelectionScreen::DrawRCScannedMenuItems(const char* menuItems[], int itemCount) {
-    setFont(OpenSans12);
-    for (int i = scanRCCount; i < scanRCCount+itemCount; i++) {
-        int column = i / ZC_ITEM_PER_COLUMN;
-        int row = i % ZC_ITEM_PER_COLUMN;
-        int x = 35 + column * ZC_COLUMN_WIDTH;
-        int y = SCAN_ZC_MENU_OFFSET + (SCAN_ZC_MENU_SPACING * (row + 1));
-        drawString(x, y, menuItems[i], LEFT);
-    }
-    scanRCCount += itemCount;
-    edp_update(); 
-}
-void SelectionScreen::RCMenuHighlight(int menu) {
-    int column = (currentSelection - 1) / ZC_ITEM_PER_COLUMN;
-    int row = (currentSelection - 1) % ZC_ITEM_PER_COLUMN;
-    int x = 3 + column * ZC_COLUMN_WIDTH;
-    int y = 9 + SCAN_ZC_MENU_OFFSET + (SCAN_ZC_MENU_SPACING * (row));
-    if (menu != currentSelection) {
-        Rect_t rect = {x, y, 31, 32};
-        epd_fill_rect(rect.x, rect.y, rect.width, rect.height, White, framebuffer);
-        for (int16_t  i = 0; i < 10; i++){
-            epd_push_pixels(rect,50,1);
-        }
-    }
-    column = (menu - 1) / ZC_ITEM_PER_COLUMN;
-    row = (menu - 1) % ZC_ITEM_PER_COLUMN;
-    x = 12 + column * ZC_COLUMN_WIDTH;
-    y = 15 + SCAN_ZC_MENU_OFFSET + (SCAN_ZC_MENU_SPACING * (row));
-    fillTriangle(x, y , x, y + 15, x + 16, y + 7, Black);
-    currentSelection = menu;
-    edp_update();
-}
-
-//Draw Rc info screen
-void SelectionScreen::DrawRCInfoScreen() {
-    epd_clear();
-    memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
-    setFont(OpenSans14);
-    String title = String(TXT_RC_INFO) + " - " + RCMenuItems[currentSelection - 1];
-    drawString((EPD_WIDTH/2)-5, 28, title, CENTER);
-    drawFastHLine(0, 39, EPD_WIDTH, Black);
-    currentScreen = RC_INFO_SCREEN;
-    edp_update();
+void SelectionScreen::clearMenuArea(){
+    Rect_t rect = {0, TITLE_HIGHT, EPD_WIDTH, EPD_HEIGHT - TITLE_HIGHT};
+    Display::fillRect(rect.x, rect.y, rect.width, rect.height, WHITE);
 }

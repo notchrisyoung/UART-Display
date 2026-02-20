@@ -34,6 +34,10 @@ void ScreenManager::switchToScreen(ScreenType newScreen) {
     if(currentScreenType == newScreen) {
          return; // No need to switch if the screen is already the same
     }
+    if (currentScreen) {
+        delete currentScreen;
+        currentScreen = nullptr;
+    }
     switch (newScreen) {
         case ScreenType::SPLASH_SCREEN:
             currentScreen = new SplashScreen();

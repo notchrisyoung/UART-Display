@@ -132,7 +132,7 @@ void Display::fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16
 }
 void Display::pushPixels(Rect_t rect, uint16_t delay, uint8_t count) {
     refreshCount++;
-    if (refreshCount >= 28) {
+    if (refreshCount >= 200) {
         // Force a full refresh every 10 updates to prevent ghosting
         epd_poweron();
         epd_clear();
@@ -142,6 +142,7 @@ void Display::pushPixels(Rect_t rect, uint16_t delay, uint8_t count) {
     }
     else {
         rect.x = DISPLAY_WIDTH - rect.x - rect.width;
+        rect.y = DISPLAY_HEIGHT - rect.y - rect.height;
         epd_poweron();
         epd_push_pixels(rect, delay, count);
         epd_poweroff();

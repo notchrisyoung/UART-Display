@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "PacketCRC.h"
 
-#define UART_BUFFER_SIZE 1024
+#define UART_BUFFER_SIZE 40960
 #define START_BYTE 0x02
 #define END_BYTE   0xFF
 #define MESSAGE_OK 0x10
@@ -24,8 +24,8 @@ private:
     
     enum State { WAIT_START, READ_LENGTH, READ_DATA, READ_CHK, WAIT_END } state;
     uint8_t buffer[UART_BUFFER_SIZE];
-    uint8_t length;
-    uint8_t index;
+    uint16_t length;
+    uint16_t index;
     uint8_t checksum;
 
     uint8_t calcChecksum(const uint8_t* data, uint16_t len);

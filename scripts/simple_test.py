@@ -60,6 +60,7 @@ def send_message(ser, json_data):
     frame.append(END_BYTE)
 
     print(f"Sending: {json_str}")
+    print(f"Frame length: {len(frame)} bytes")
     print(f"Frame bytes: {' '.join(f'{b:02X}' for b in frame)}")
     
     for byte in frame:
@@ -132,9 +133,9 @@ def main():
             "id": "main_menu",
             "menuTitle": "Main Menu",
             "menuItems": [
+                "Selection Screen",
                 "Loading Screen",
                 "Info Screen",
-                "Selection Screen",
                 "Splash Screen"
             ],
         })
@@ -156,9 +157,9 @@ def main():
                         "id": "main_menu",
                         "menuTitle": "Main Menu",
                         "menuItems": [
+                            "Selection Screen",
                             "Loading Screen",
                             "Info Screen",
-                            "Selection Screen",
                             "Splash Screen"
                         ],
                     })
@@ -166,9 +167,9 @@ def main():
                     print("Loading 'Selection Screen'...")
                     send_message(ser, {
                         "type": "screen",
-                        "id": "selection_screen",
-                        "screenTitle": "ZC",
-                        "screenItems": [f"ZC{i}" for i in range(1, 51)]
+                        "id": "selection_menu",
+                        "menuTitle": "Scanning for ZC's",
+                        "menuItems": [f"N01-025-{i}" for i in range(1, 100)]
                     })
                 elif menu_item == "Info Screen":
                     print("Loading 'Info Screen'...")
