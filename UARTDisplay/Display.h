@@ -50,6 +50,7 @@ class Display {
     static void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
     static void pushPixels(Rect_t rect, uint16_t delay, uint8_t count = 1);
     static void setFont(GFXfont const &font);
+    static uint16_t getTextWidth(const String& text);
 };
 
 #endif

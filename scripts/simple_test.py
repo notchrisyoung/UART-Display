@@ -169,7 +169,7 @@ def main():
                         "type": "screen",
                         "id": "selection_menu",
                         "menuTitle": "Scanning for ZC's",
-                        "menuItems": [f"N01-025-{i}" for i in range(1, 100)]
+                        "menuItems": [f"ZC{i}" for i in range(1, 175)]
                     })
                 elif menu_item == "Info Screen":
                     print("Loading 'Info Screen'...")

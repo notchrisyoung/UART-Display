@@ -5,7 +5,7 @@ scanZCCount = 0, scanRCCount = 0, vref = 1100;
 GFXfont  currentFont;
 uint8_t *framebuffer;
 uint8_t *framebufferflip;
-uint8_t refreshCount = 0;
+uint16_t refreshCount = 0;
 
 // Display commands
 void Display::begin() {
@@ -132,7 +132,7 @@ void Display::fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16
 }
 void Display::pushPixels(Rect_t rect, uint16_t delay, uint8_t count) {
     refreshCount++;
-    if (refreshCount >= 200) {
+    if (refreshCount >= 255) {
         // Force a full refresh every 10 updates to prevent ghosting
         epd_poweron();
         epd_clear();
@@ -150,4 +150,13 @@ void Display::pushPixels(Rect_t rect, uint16_t delay, uint8_t count) {
 }
 void Display::setFont(GFXfont const &font) {
     currentFont = font;
+}
+uint16_t Display::getTextWidth(const String& text) {
+    int32_t x1, y1, w, h, x = 0, y = 0;
+    char* data = const_cast<char*>(text.c_str());
+    get_text_bounds(&currentFont, data, &x, &y, &x1, &y1, &w, &h, NULL);
+    if (w < 0) {
+        return 0;
+    }
+    return static_cast<uint16_t>(w);
 }

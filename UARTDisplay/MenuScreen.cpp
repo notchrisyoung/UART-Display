@@ -63,9 +63,7 @@ void MenuScreen::highlight(int item) {
 void MenuScreen::clearHighlight() {
 	Rect_t rect = {0, 0, 52, EPD_HEIGHT};
 	Display::fillRect(rect.x, rect.y, rect.width, rect.height, WHITE);
-	for (int16_t  i = 0; i < 4; i++){
-        Display::pushPixels(rect,50,1);
-    }
+	Display::pushPixels(rect,50,5);
 }
 void MenuScreen::upPress() {
     if (selectedIndex > 0) {
