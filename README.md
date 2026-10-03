@@ -2,9 +2,7 @@
 
 **NERD: Networked E-paper Remote Display.** A general-purpose **e-paper menu terminal**. A LilyGo T5 4.7" e-ink board with seven physical buttons shows menus, selection lists, info and loading screens. **Whatever is plugged into its serial port decides what's on screen.** The host sends small JSON messages over UART, and the display sends back what the user picked. This lets any microcontroller, Raspberry Pi or PC get a crisp, low-power UI without having to drive a display itself.
 
-![Splash image](scripts/splash.jpg)
-
-<!-- PHOTOS: add photos of the device here, e.g. ![UART Display](docs/device.jpg) -->
+<p align="center"><img src="docs/photos/nerd-front.jpg" alt="The NERD handheld showing its splash screen" width="420"></p>
 
 ## Screens
 
@@ -79,6 +77,17 @@ Everything the display sends back is printed as it arrives: the OK/ERROR acknowl
 Close the PlatformIO serial monitor first: only one program can use the port at a time.
 
 `scripts/simple_test.py` is the older, minimal version: set `SERIAL_PORT` at the top and run it to walk through the screens.
+
+## The handheld build
+
+| | | |
+|---|---|---|
+| ![Opened up](docs/photos/opened.jpg) | ![Inside the back half](docs/photos/inside.jpg) | ![Power button and antenna](docs/photos/power-and-antenna.jpg) |
+| Opened up: the case, the display and buttons on their carrier, the electronics tray and the back cover | The host side: a Raspberry Pi Zero, a Digi XBee radio for the ZigBee network, a power board and a LiPo pouch cell | A lit metal power button and an SMA antenna for the XBee on the top edge |
+
+![The seven buttons](docs/photos/buttons.jpg)
+
+In the handheld, NERD is the screen and buttons for a ZigBee network tool. The Raspberry Pi Zero is the host: it talks to the ZigBee network through the XBee and drives the display over UART with the protocol above, for example listing the coordinators and routers a scan finds. Everything runs from the LiPo cell, and the case is printed in clear filament with brass heat-set inserts. The seven buttons are printed caps over tactile switches.
 
 ## Hardware
 
