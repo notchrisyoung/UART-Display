@@ -1,7 +1,6 @@
 #include "Display.h"
 
-int currentScreen = 0, currentSelection = 0, 
-scanZCCount = 0, scanRCCount = 0, vref = 1100;
+int currentScreen = 0, currentSelection = 0, vref = 1100;
 GFXfont  currentFont;
 uint8_t *framebuffer;
 uint8_t *framebufferflip;

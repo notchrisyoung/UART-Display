@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple UART Test Script for Arduino NERD Display
+Simple UART test script for NERD (Networked E-paper Remote Display)
 Quick and easy testing without command line arguments
 """
 
@@ -168,8 +168,8 @@ def main():
                     send_message(ser, {
                         "type": "screen",
                         "id": "selection_menu",
-                        "menuTitle": "Scanning for ZC's",
-                        "menuItems": [f"ZC{i}" for i in range(1, 175)]
+                        "menuTitle": "Scanning for coordinators",
+                        "menuItems": [f"Coordinator {i}" for i in range(1, 175)]
                     })
                 elif menu_item == "Info Screen":
                     print("Loading 'Info Screen'...")

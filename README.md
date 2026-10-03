@@ -1,6 +1,6 @@
 # UART Display
 
-A general-purpose **e-paper menu terminal**. A LilyGo T5 4.7" e-ink board with seven physical buttons shows menus, selection lists, info and loading screens. **Whatever is plugged into its serial port decides what's on screen.** The host sends small JSON messages over UART, and the display sends back what the user picked. This lets any microcontroller, Raspberry Pi or PC get a crisp, low-power UI without having to drive a display itself.
+**NERD: Networked E-paper Remote Display.** A general-purpose **e-paper menu terminal**. A LilyGo T5 4.7" e-ink board with seven physical buttons shows menus, selection lists, info and loading screens. **Whatever is plugged into its serial port decides what's on screen.** The host sends small JSON messages over UART, and the display sends back what the user picked. This lets any microcontroller, Raspberry Pi or PC get a crisp, low-power UI without having to drive a display itself.
 
 ![Splash image](scripts/splash.jpg)
 
@@ -12,7 +12,7 @@ A general-purpose **e-paper menu terminal**. A LilyGo T5 4.7" e-ink board with s
 |---|---|
 | `splash` | Boot splash image (`SplashData.h`) |
 | `main_menu` | Titled list of menu items; scroll with Up/Down, confirm with Select |
-| `selection_menu` | Multi-column list for long lists (e.g. 170+ scanned devices), navigated with all four arrows |
+| `selection_menu` | Multi-column list for long lists (e.g. 170+ ZigBee coordinators and routers found by a scan), navigated with all four arrows |
 | `info_screen` | Title plus lines of information *(work in progress)* |
 | `loading_screen` | "Please wait" style screen *(work in progress)* |
 
@@ -35,8 +35,8 @@ A general-purpose **e-paper menu terminal**. A LilyGo T5 4.7" e-ink board with s
 ```
 
 ```json
-{"type": "screen", "id": "selection_menu", "menuTitle": "Scanning for ZC's",
- "menuItems": ["ZC1", "ZC2", "ZC3"]}
+{"type": "screen", "id": "selection_menu", "menuTitle": "Scanning for coordinators",
+ "menuItems": ["Coordinator 1", "Coordinator 2", "Coordinator 3"]}
 ```
 
 `{"type": "data", ...}` sends updates to the screen that's already showing.
