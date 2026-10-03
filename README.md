@@ -49,7 +49,16 @@
 
 ## Testing the screens
 
-`scripts/screen_test.py` drives the display from a PC so every screen can be checked by hand. It needs Python 3 and `pyserial`:
+`scripts/screen_test.py` drives the display from a PC so every screen can be checked by hand. It's built into the PlatformIO project as two tasks, which use PlatformIO's own Python (it already has `pyserial`):
+
+```bash
+pio run -t screentest    # interactive tester
+pio run -t screendemo    # show every screen once, then report pass/fail
+```
+
+In VS Code they're under **PlatformIO > Project Tasks > t5-47 > Custom**. They use the port set by `monitor_port` or `upload_port` in `platformio.ini` (or `--upload-port COM17` on the command line). With no port set, the tester lists the serial ports and asks which one to use.
+
+The script also runs on its own with any Python 3 that has `pyserial`:
 
 ```bash
 pip install pyserial
@@ -117,6 +126,7 @@ pio device monitor     # serial monitor at 115200
 | `scripts/fontconvert.py` | Convert a TTF to an EPD font header ([details](scripts/README.MD)) |
 | `scripts/imgconvert.py` | Convert an image (e.g. `splash.jpg`) to a header |
 | `scripts/screen_test.py` | Interactive screen tester (see [Testing the screens](#testing-the-screens)) |
+| `scripts/pio_targets.py` | Adds the `screentest` and `screendemo` PlatformIO tasks |
 | `scripts/simple_test.py` | Minimal example host |
 
 ## Version
