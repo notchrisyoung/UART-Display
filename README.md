@@ -2,7 +2,9 @@
 
 **NERD: Networked E-paper Remote Display.** A general-purpose **e-paper menu terminal**. A LilyGo T5 4.7" e-ink board with seven physical buttons shows menus, selection lists, info and loading screens. **Whatever is plugged into its serial port decides what's on screen.** The host sends small JSON messages over UART, and the display sends back what the user picked. This lets any microcontroller, Raspberry Pi or PC get a crisp, low-power UI without having to drive a display itself.
 
-<p align="center"><img src="docs/photos/nerd-front.jpg" alt="The NERD handheld showing its splash screen" width="420"></p>
+| The handheld | Splash image |
+|---|---|
+| ![The NERD handheld showing its splash screen](docs/photos/nerd-front.jpg) | ![Splash image](scripts/splash.jpg) |
 
 ## Screens
 
