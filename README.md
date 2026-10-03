@@ -4,7 +4,7 @@
 
 | The handheld | Splash image |
 |---|---|
-| ![The NERD handheld showing its splash screen](docs/photos/nerd-front.jpg) | ![Splash image](scripts/splash.jpg) |
+| ![The NERD handheld showing its splash screen](docs/photos/nerd-front.jpg) | ![Splash image](docs/splash.jpg) |
 
 ## Screens
 
