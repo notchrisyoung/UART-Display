@@ -1,5 +1,7 @@
 # UART Display
 
+> **Work in progress.** The menu and selection screens work, the info and loading screens are still being built, and the protocol may change.
+
 **NERD: Networked E-paper Remote Display.** A general-purpose **e-paper menu terminal**. A LilyGo T5 4.7" e-ink board with seven physical buttons shows menus, selection lists, info and loading screens. **Whatever is plugged into its serial port decides what's on screen.** The host sends small JSON messages over UART, and the display sends back what the user picked. This lets any microcontroller, Raspberry Pi or PC get a crisp, low-power UI without having to drive a display itself.
 
 | The handheld | Splash image |
