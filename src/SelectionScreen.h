@@ -76,8 +76,11 @@ class SelectionScreen : public BaseScreen {
         uint16_t* columnX;
         uint16_t* columnPage;
         SelectionMode selectionMode;
+        bool layoutDirty;
         void computeLayout();
         void drawHighlightedArrow(uint16_t x, uint16_t y, bool pointRight);
+        void drawPageArrows(bool clearFirst = false);
+        void drawPageNumber(bool clearFirst = false);
         void setSelection(uint16_t newIndex);
         void clearLayout();
         void nextPage();

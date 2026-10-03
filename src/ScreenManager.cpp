@@ -1,5 +1,5 @@
 #include "ScreenManager.h"
-#include <String.h>
+#include <WString.h>
 
 ScreenManager::ScreenManager() {}
 ScreenManager* ScreenManager::instance = nullptr;
@@ -62,11 +62,11 @@ void ScreenManager::switchToScreen(ScreenType newScreen) {
     }
 }
 
-void ScreenManager::processUartData(uint8_t* data, uint8_t len) {
+void ScreenManager::processUartData(uint8_t* data, uint16_t len) {
     //Serial.println("Processing UART Data");
     // Process the message and update the current screen accordingly
-    String message = String((char*)data);
-    DeserializationError error = deserializeJson(doc, message);
+    // Parse exactly len bytes: the receive buffer isn't null-terminated
+    DeserializationError error = deserializeJson(doc, (const char*)data, len);
     if (error) {
         //Serial.print(F("deserializeJson() failed: "));
         //Serial.println(error.f_str());

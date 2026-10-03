@@ -17,7 +17,7 @@ public:
     void process();
     void sendMessage(const uint8_t* data, uint16_t len);
 
-    void setCallback(void (*cb)(const uint8_t*, uint8_t));
+    void setCallback(void (*cb)(const uint8_t*, uint16_t));
 
 private:
     PacketCRC crc;
@@ -30,8 +30,8 @@ private:
 
     uint8_t calcChecksum(const uint8_t* data, uint16_t len);
     void receiveByte(uint8_t byte);
-    void processMessage(const uint8_t* data, uint8_t len);
-    void (*messageCallback)(const uint8_t*, uint8_t) = nullptr;
+    void processMessage(const uint8_t* data, uint16_t len);
+    void (*messageCallback)(const uint8_t*, uint16_t) = nullptr;
 };
 
 #endif

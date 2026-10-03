@@ -66,12 +66,12 @@ void UARTProtocol::process() {
     }
 }
 
-void UARTProtocol::processMessage(const uint8_t* data, uint8_t len) {
+void UARTProtocol::processMessage(const uint8_t* data, uint16_t len) {
     if (messageCallback) {
         messageCallback(data, len);
     }
 }
 
-void UARTProtocol::setCallback(void (*cb)(const uint8_t*, uint8_t)) {
+void UARTProtocol::setCallback(void (*cb)(const uint8_t*, uint16_t)) {
     messageCallback = cb;
 }

@@ -29,7 +29,7 @@ void MenuScreen::processUartData(JsonDocument& doc) {
     //Serial.println("MenuScreen processUartData");
     // Process the message and update the menu items if needed
     // Add logic to handle incoming UART data and update menu items
-    if (doc.containsKey("menuItems")) {
+    if (doc["menuItems"].is<JsonArray>()) {
         JsonArray items = doc["menuItems"].as<JsonArray>();
         menuItemCount = items.size();
         menuTitle = doc["menuTitle"].as<String>();

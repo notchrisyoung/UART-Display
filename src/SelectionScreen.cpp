@@ -51,7 +51,7 @@ void SelectionScreen::clearLayout() {
 
 //################ UART Communication Functions ##################################################
 void SelectionScreen::processUartData(JsonDocument& doc) {
-    if (doc.containsKey("menuItems")) {
+    if (doc["menuItems"].is<JsonArray>()) {
         screenTitle = doc["menuTitle"].as<String>();
         JsonArray items = doc["menuItems"].as<JsonArray>();
         screenItemCount = items.size();

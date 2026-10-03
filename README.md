@@ -47,7 +47,29 @@
 {"type": "item_selected", "selectedItem": "Info Screen"}
 ```
 
-`scripts/simple_test.py` is a ready-to-run host that walks through every screen. Set `SERIAL_PORT` at the top and run `python simple_test.py` (needs `pyserial`).
+## Testing the screens
+
+`scripts/screen_test.py` drives the display from a PC so every screen can be checked by hand. It needs Python 3 and `pyserial`:
+
+```bash
+pip install pyserial
+python scripts/screen_test.py                    # pick the port from a list
+python scripts/screen_test.py --port COM17       # or name it
+python scripts/screen_test.py --port COM17 --demo   # show every screen once, then exit
+```
+
+The interactive menu can:
+- open each screen (splash, main menu, selection list, info, loading)
+- fill the main menu with your own title and items
+- fill the selection list with coordinators and routers, or with hundreds of items as a stress test
+- send any JSON you type
+- send a frame with a bad checksum, which the display should reject
+
+Everything the display sends back is printed as it arrives: the OK/ERROR acknowledgement for each frame, the item picked with Select, and any debug text. In **follow mode** (on by default), picking an entry on the display's main menu opens that screen, so you can test from the buttons alone. `--demo` exits with code 0 only if every screen was acknowledged and the bad frame was rejected, so it also works as a quick check after flashing.
+
+Close the PlatformIO serial monitor first: only one program can use the port at a time.
+
+`scripts/simple_test.py` is the older, minimal version: set `SERIAL_PORT` at the top and run it to walk through the screens.
 
 ## Hardware
 
@@ -66,27 +88,36 @@
 
 ## Building
 
-- Arduino IDE, **ESP32 board package 2.0.6**
-- [LilyGo-EPD47 v0.1.0](https://github.com/Xinyuan-LilyGO/LilyGo-EPD47/tree/v0.1.0)
-- **ArduinoJson 7.3.1** (7.4.x works but throws a warning)
+This is a [PlatformIO](https://platformio.org/) project (the VS Code extension is the easiest way in). `platformio.ini` pins everything, so there's nothing to install by hand:
 
-Open `UARTDisplay/UARTDisplay.ino` and upload.
+| Dependency | Version |
+|---|---|
+| Arduino-ESP32 core | 2.0.6 (`espressif32@6.0.1`) |
+| [LilyGo-EPD47](https://github.com/Xinyuan-LilyGO/LilyGo-EPD47/tree/v0.1.0) | v0.1.0, from GitHub |
+| ArduinoJson | 7.3.1 |
+
+```bash
+pio run -t upload      # build and flash
+pio device monitor     # serial monitor at 115200
+```
 
 ## Code layout
 
 | Path | Purpose |
 |---|---|
-| `UARTDisplay/UARTDisplay.ino` | Setup and main loop |
-| `UARTProtocol.*`, `PacketCRC.*` | Serial framing and CRC |
+| `platformio.ini` | Board, build settings and libraries |
+| `src/main.cpp` | Setup and main loop |
+| `src/UARTProtocol.*`, `PacketCRC.*` | Serial framing and CRC |
 | `ScreenManager.*` | Parses incoming JSON and switches screens |
 | `BaseScreen.*` and `*Screen.*` | One class per screen type |
 | `Buttons.*` | Debounced buttons with short/long press callbacks |
 | `Display.*` | E-paper drawing helpers |
 | `Fonts/` | Pre-converted Open Sans fonts |
-| `debug.cfg`, `debug_custom.json`, `esp32.svd` | Hardware debugger configuration |
+| `debug/` | JTAG debugger files from the Arduino IDE setup (OpenOCD config, SVD) |
 | `scripts/fontconvert.py` | Convert a TTF to an EPD font header ([details](scripts/README.MD)) |
 | `scripts/imgconvert.py` | Convert an image (e.g. `splash.jpg`) to a header |
-| `scripts/simple_test.py` | Example host / test script |
+| `scripts/screen_test.py` | Interactive screen tester (see [Testing the screens](#testing-the-screens)) |
+| `scripts/simple_test.py` | Minimal example host |
 
 ## Version
 

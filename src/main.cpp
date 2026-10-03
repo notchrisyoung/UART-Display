@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <String.h>
+#include <WString.h>
 #include "ScreenManager.h"
 #include "UARTProtocol.h"
 
@@ -16,7 +16,7 @@ void setup() {
     Buttons::begin();
     // Initialize the screen manager
     sm.init();
-    uart.setCallback([](const uint8_t* data, uint8_t len) {
+    uart.setCallback([](const uint8_t* data, uint16_t len) {
         sm.processUartData(const_cast<uint8_t*>(data), len);
     });
     sm.setUARTcallback([](const String& message) {

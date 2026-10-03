@@ -28,7 +28,7 @@ public:
 	void switchToScreen(ScreenType newScreen);
 	//void setButtonCallback(Button button, void (*callback)());
 	void setUARTcallback(void (*callback)(const String& message));
-	void processUartData(uint8_t* data, uint8_t len);
+	void processUartData(uint8_t* data, uint16_t len);
 	void sendUartData(const String& message);
 	void upPress();
 	void downPress();
